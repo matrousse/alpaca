@@ -267,12 +267,12 @@
                             propertyOptions = Alpaca.copyOf(propertyOptions);
                         }
 
-                        callback(propertySchema, propertyOptions, circular);
+                        callback(propertySchema, propertyOptions, circular, propertyId);
                     });
                 }
                 else
                 {
-                    callback(propertySchema, propertyOptions);
+                    callback(propertySchema, propertyOptions, null, propertyId);
                 }
             },
 
@@ -455,7 +455,7 @@
                     }
 
                     // only allow this if we have data, otherwise we end up with circular reference
-                    _this.resolvePropertySchemaOptions(propertyId, function(schema, options, circular) {
+                    _this.resolvePropertySchemaOptions(propertyId, function(schema, options, circular, propertyId) {
 
                         // we only allow addition if the resolved schema isn't circularly referenced
                         // or the schema is optional
@@ -469,6 +469,7 @@
                             Alpaca.logError("Unable to resolve schema for property: " + propertyId);
                         }
 
+                        // TODO - MRS - determine insertAfterId
                         _this.addItem(propertyId, schema, options, itemData);
 
                         // remove from extraDataProperties helper
