@@ -232,6 +232,11 @@
             if (schemaSource)
             {
                 this.loadSchema(schemaSource, function(schema) {
+                	// Add an id to track source URI
+                	if (!schema.id)
+                	{
+                		schema.id = schemaSource + "#";
+                	}
                     loaded.schema = schema;
                     loadCounter++;
                     successCallback();

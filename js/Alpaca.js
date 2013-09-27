@@ -2323,16 +2323,23 @@
             {
                 // nothing
             	// MRS --- Try to load json ?
+            	var schemaSource = referenceId;
+            	// URI resolution scope alteration with the "id" keyword
+            	if (topField.schema.id && !schemaSource.match(/^http:\/\/|^\//))
+            	{
+            		schemaSource = topField.schema.id.match(/.*\//) + schemaSource;
+            	}
+         
             	// Load Schema from an Ajax Call
             	// Load Options from the option tree
 				var isValidSchemaUri = function() {
-					return !Alpaca.isEmpty(referenceId)
-							&& Alpaca.isUri(referenceId);
+					return !Alpaca.isEmpty(schemaSource)
+							&& Alpaca.isUri(schemaSource);
 				};
 				if (isValidSchemaUri()) {
 					var connectorClass = Alpaca.getConnectorClass("default");
 					connector = new connectorClass("default");
-					connector.loadJson(referenceId, function(loadedSchema) {
+					connector.loadJson(schemaSource, function(loadedSchema) {
 						var subOptions = Alpaca.resolveOptions(topField.options,propertyId);
 						callback(loadedSchema, subOptions);
 					}, callback);
