@@ -242,7 +242,7 @@
                         fieldChain.push(topField);
                     }
 
-                    Alpaca.loadRefSchemaOptions(topField, referenceId, function(propertySchema, propertyOptions) {
+                    Alpaca.loadRefSchemaOptions(topField, referenceId, propertyId, function(propertySchema, propertyOptions) {
 
                         // walk the field chain to see if we have any circularity
                         var refCount = 0;

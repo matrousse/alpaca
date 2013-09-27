@@ -2290,7 +2290,7 @@
         return $(el).attr(name);
     };
 
-    Alpaca.loadRefSchemaOptions = function(topField, referenceId, callback)
+    Alpaca.loadRefSchemaOptions = function(topField, referenceId, propertyId, callback)
     {
         if (referenceId.indexOf("#/definitions/") > -1)
         {
@@ -2323,6 +2323,8 @@
             {
                 // nothing
             	// MRS --- Try to load json ?
+            	// Load Schema from an Ajax Call
+            	// Load Options from the option tree
 				var isValidSchemaUri = function() {
 					return !Alpaca.isEmpty(referenceId)
 							&& Alpaca.isUri(referenceId);
@@ -2331,7 +2333,8 @@
 					var connectorClass = Alpaca.getConnectorClass("default");
 					connector = new connectorClass("default");
 					connector.loadJson(referenceId, function(loadedSchema) {
-						callback(loadedSchema);
+						var subOptions = Alpaca.resolveOptions(topField.options,propertyId);
+						callback(loadedSchema, subOptions);
 					}, callback);
 				} else {
 					callback();
@@ -2410,7 +2413,31 @@
         }
     };
 
-
+    /**
+     * Given a base field, walks the options forward until it
+     * discovers the given reference.
+     *
+     * @param options
+     * @param propertyId
+     */
+    Alpaca.resolveOptions = function(options, propertyId)
+    {
+		if (options && options.fields) {
+			if (options.fields[propertyId]) {
+				return options.fields[propertyId];
+			} else {
+				for (var fieldPropId in options.fields) {
+					var x = Alpaca.resolveOptions(options.fields[fieldPropId],
+							propertyId);
+					if (x) {
+						return x;
+					}
+				}
+			}
+		}
+		return null;
+    };
+    
     /**
      * Given a base field, walks the schema, options and data forward until it
      * discovers the given reference.
