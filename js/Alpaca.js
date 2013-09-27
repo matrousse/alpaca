@@ -960,7 +960,7 @@
             "email": /^[a-z0-9!\#\$%&'\*\-\/=\?\+\-\^_`\{\|\}~]+(?:\.[a-z0-9!\#\$%&'\*\-\/=\?\+\-\^_`\{\|\}~]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,6}$/i,
             "url": /^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(\:[0-9]{1,5})?(([0-9]{1,5})?\/.*)?$/i,
             "password": /^[0-9a-zA-Z\x20-\x7E]*$/,
-            "date": /^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.]\d\d$/,
+            "date": /^(0[1-9]|1[012])[- \/.](0[1-9]|[12][0-9]|3[01])[- \/.]\d\d$/,
             "integer": /^([\+\-]?([1-9]\d*)|0)$/,
             "number":/^([\+\-]?((([0-9]+(\.)?)|([0-9]*\.[0-9]+))([eE][+-]?[0-9]+)?))$/,
             "phone":/^(\D?(\d{3})\D?\D?(\d{3})\D?(\d{4}))?$/,
@@ -2322,7 +2322,22 @@
             else
             {
                 // nothing
-                callback();
+            	// MRS --- Try to load json ?
+				var isValidSchemaUri = function() {
+					return !Alpaca.isEmpty(referenceId)
+							&& Alpaca.isUri(referenceId);
+				};
+				if (isValidSchemaUri()) {
+					var connectorClass = Alpaca.getConnectorClass("default");
+					connector = new connectorClass("default");
+					connector.loadJson(referenceId, function(loadedSchema) {
+						callback(loadedSchema);
+					}, callback);
+				} else {
+					callback();
+				}
+				// MRS
+				// callback();
             }
         }
     };
