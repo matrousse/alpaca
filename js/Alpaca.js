@@ -2321,15 +2321,15 @@
             }
             else
             {
-                // nothing
-            	// MRS --- Try to load json ?
+				// nothing
+				// MRS --- Try to load json ?
             	var schemaSource = referenceId;
             	// URI resolution scope alteration with the "id" keyword
             	if (topField.schema.id && !schemaSource.match(/^http:\/\/|^\//))
             	{
             		schemaSource = topField.schema.id.match(/.*\//) + schemaSource;
             	}
-         
+            	
             	// Load Schema from an Ajax Call
             	// Load Options from the option tree
 				var isValidSchemaUri = function() {
@@ -2339,9 +2339,48 @@
 				if (isValidSchemaUri()) {
 					var connectorClass = Alpaca.getConnectorClass("default");
 					connector = new connectorClass("default");
-					connector.loadJson(schemaSource, function(loadedSchema) {
-						var subOptions = Alpaca.resolveOptions(topField.options,propertyId);
-						callback(loadedSchema, subOptions);
+					// Workaround replace ../../../... by ../ in schema source
+					var url = schemaSource.replace(/(\.\.\/)+/g,"../");
+					connector.loadJson(url, function(loadedSchema) {
+						// Support "extends"
+						if (loadedSchema && loadedSchema["extends"])
+					    {
+							// Load $ref extended schema
+							var urlExt = (topField.schema.id.match(/.*\//) + loadedSchema["extends"]["$ref"]).replace(/(\.\.\/)+/g,"../");
+							connector.loadJson(urlExt, function(loadedExtendedSchema) {
+							    // Copy properties into loadedSchema
+								if (loadedExtendedSchema && loadedExtendedSchema.properties)
+								{
+									for (var prop in loadedSchema.properties)
+									{
+										if (loadedSchema.properties.hasOwnProperty(prop))
+										{
+											loadedExtendedSchema.properties[prop]=loadedSchema.properties[prop];	
+										}
+									}
+								} else {
+									loadedExtendedSchema = loadedSchema;
+								}
+								
+								if (loadedSchema.title) {
+									loadedExtendedSchema.title = loadedSchema.title;
+								}
+								
+								if (loadedSchema.description) {
+									loadedExtendedSchema.description = loadedSchema.description;
+								}
+								
+								// load options
+								var subOptions = Alpaca.resolveOptions(topField.options,propertyId);
+								callback(loadedExtendedSchema, subOptions);
+							}, callback);
+					    }
+						else
+						{
+							// load options
+							var subOptions = Alpaca.resolveOptions(topField.options,propertyId);
+							callback(loadedSchema, subOptions);
+						}
 					}, callback);
 				} else {
 					callback();

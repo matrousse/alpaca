@@ -1282,6 +1282,16 @@
 
                 // register general event handlers through options
                 $.each(this.options, function(key, func) {
+                	// Patch MRS for stringified functions
+                	if (Alpaca.isString(func))
+                	{
+                		var funcDefArray = func.match(/\s+function\s+(\w*)\((.*)\)\s+\{(.*)\}/g);
+                		if ( funcDefArray != null)
+                		{
+                			// convert func to function
+                			func = new Function(funcDefArray[1],funcDefArray[2]);
+                		}
+                	}
                     if (Alpaca.startsWith(key,'onField') && Alpaca.isFunction(func)) {
                         var event = key.substring(7).toLowerCase();
                         _this.field.on(event, function(e) {
