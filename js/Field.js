@@ -1240,9 +1240,19 @@
                 return true;
             } else {
                 for (var key in this.validation) {
-                    if (!this.validation[key].status) {
-                        return false;
+                	// MRS Fix depency validation
+                	// this.determineAllDependenciesValid(propertyId);
+                    if (child.propertyId && this.determineAllDependenciesValid)
+                    {
+                    	if (this.determineAllDependenciesValid(child.propertyId) && !child.isValid(checkChildren)) {
+                    		return false;
+                    	}
+                    } else {
+                    	if (!child.isValid(checkChildren)) {
+                    		return false;
+                    	}
                     }
+                    // End MRS Fix
                 }
                 return true;
             }
