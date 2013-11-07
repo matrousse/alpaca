@@ -1226,21 +1226,11 @@
          */
         isValid: function(checkChildren) {
 
-            if (checkChildren && this.children)
+        	if (checkChildren && this.children)
             {
                 for (var i = 0; i < this.children.length; i++) {
                     var child = this.children[i];
-                    if (!child.isValid(checkChildren)) {
-                        return false;
-                    }
-                }
-            }
-
-            if ($.isEmptyObject(this.validation)) {
-                return true;
-            } else {
-                for (var key in this.validation) {
-                	// MRS Fix depency validation
+                    // MRS Fix depency validation
                 	// this.determineAllDependenciesValid(propertyId);
                     if (child.propertyId && this.determineAllDependenciesValid)
                     {
@@ -1253,6 +1243,18 @@
                     	}
                     }
                     // End MRS Fix
+                }
+            }
+
+            // MRS Fix : don't validate hidden fields as we cannot set them...
+            if ($.isEmptyObject(this.validation) || this.options.hidden) {
+                return true;
+            } else {
+                for (var key in this.validation) {
+                	
+                    if (!this.validation[key].status) {
+                        return false;
+                    }
                 }
                 return true;
             }
