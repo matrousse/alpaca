@@ -708,7 +708,7 @@
 
                     // special case: if the field is a boolean field and we have no conditional dependency checking,
                     // then we set valid = false if the field data is a boolean false
-                    if (child.getType() === "boolean" && !this.childrenByPropertyId[propertyId].options.dependencies && !child.data)
+                    if ((child.getType() === "boolean"||child.type === "checkbox") && !this.childrenByPropertyId[propertyId].options.dependencies && !child.data)
                     {
                         valid = false;
                     }

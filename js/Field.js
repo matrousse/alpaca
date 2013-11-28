@@ -639,6 +639,17 @@
 
             // field level post render
             if (this.options.postRender) {
+            	// MRS JSON loaded functions
+            	if (Alpaca.isString(this.options.postRender))
+            	{
+            		var re = /\s*function\s*(\w*)\((.*)\)\s+\{(.*)\}/g;
+            		var funcDefArray = re.exec(this.options.postRender);
+            		if ( funcDefArray != null)
+            		{
+            			// convert func to function
+            			this.options.postRender = new Function(funcDefArray[2],funcDefArray[3]);
+            		}
+            	}
                 this.options.postRender(this);
             }
 
@@ -1295,13 +1306,14 @@
                 // register general event handlers through options
                 $.each(this.options, function(key, func) {
                 	// Patch MRS for stringified functions
-                	if (Alpaca.isString(func))
+                	if (Alpaca.startsWith(key,'onField') && Alpaca.isString(func))
                 	{
-                		var funcDefArray = func.match(/\s+function\s+(\w*)\((.*)\)\s+\{(.*)\}/g);
+                		var re = /\s*function\s*(\w*)\((.*)\)\s+\{(.*)\}/g;
+                		var funcDefArray = re.exec(func);
                 		if ( funcDefArray != null)
                 		{
                 			// convert func to function
-                			func = new Function(funcDefArray[1],funcDefArray[2]);
+                			func = new Function(funcDefArray[2],funcDefArray[3]);
                 		}
                 	}
                     if (Alpaca.startsWith(key,'onField') && Alpaca.isFunction(func)) {
